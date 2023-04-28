@@ -1,14 +1,24 @@
-version: '3.7'
+version: "3.7"
 
 services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+
   db:
     image: postgres
     restart: always
     environment:
-      POSTGRES_USER: ibarberdb
-      POSTGRES_PASSWORD: ibarberdb
-      POSTGRES_DB: ibarberdb
+      POSTGRES_USER: ibarber
+      POSTGRES_PASSWORD: 123456
+      POSTGRES_DB: ibarber
     ports:
       - "5432:5432"
     volumes:
-      - postgres:/var/lib/postgresql/data
+      - db-data:/var/lib/postgresql/data
+
+volumes:
+  db-data:
