@@ -11,6 +11,8 @@ RUN npm run build
 
 RUN npx prisma generate
 
+RUN npx husky install
+
 EXPOSE 3000
 
 CMD ["npm", "run", "start:prod"]

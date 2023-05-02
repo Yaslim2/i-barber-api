@@ -46,7 +46,6 @@
     "eslint-plugin-prettier": "^4.0.0",
     "husky": "^8.0.3",
     "jest": "28.1.2",
-    "lint-staged": "^13.2.2",
     "prettier": "^2.3.2",
     "prisma": "^4.13.0",
     "source-map-support": "^0.5.20",
@@ -60,14 +59,8 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged"
+      "pre-commit": "npm run lint",
+      "pre-push": "npm run test"
     }
-  },
-  "lint-staged": {
-    "*.ts": [
-      "npm run lint",
-      "npm run test",
-      "git add"
-    ]
   }
 }
