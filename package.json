@@ -8,6 +8,7 @@
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "nest build",
+    "lint-staged": "lint-staged",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
@@ -18,7 +19,13 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "prepare": "husky install"
+  },
+  "lint-staged": {
+    "*.ts": [
+      "yarn lint"
+    ]
   },
   "dependencies": {
     "@nestjs/common": "^9.0.0",
@@ -46,6 +53,7 @@
     "eslint-plugin-prettier": "^4.0.0",
     "husky": "^8.0.3",
     "jest": "28.1.2",
+    "lint-staged": "^13.2.2",
     "prettier": "^2.3.2",
     "prisma": "^4.13.0",
     "source-map-support": "^0.5.20",
@@ -56,11 +64,5 @@
     "tsconfig-paths": "4.0.0",
     "typescript": "^4.3.5",
     "validator": "^13.9.0"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "npm run lint",
-      "pre-push": "npm run test"
-    }
   }
 }
