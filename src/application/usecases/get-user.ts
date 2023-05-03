@@ -1,7 +1,7 @@
 import { User } from '@application/entities/user/user';
 import { UserRepository } from '@application/repositories/user-repository';
 import { Injectable } from '@nestjs/common';
-import { UserNotFound } from './errors/user-not-found';
+import { NotFound } from './errors/user-not-found';
 
 interface GetUserRequest {
   userId: string;
@@ -18,7 +18,7 @@ export class GetUser {
   async execute(request: GetUserRequest): Promise<GetUserResponse> {
     const user = await this.userRepository.findById(request.userId);
     if (!user) {
-      throw new UserNotFound();
+      throw new NotFound('User');
     }
     return { user };
   }

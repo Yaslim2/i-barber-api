@@ -5,6 +5,7 @@ import { Password } from '@application/entities/user/password';
 import { User } from '@application/entities/user/user';
 import { UserRepository } from '@application/repositories/user-repository';
 import { Injectable } from '@nestjs/common';
+import { AlreadyInUse } from './errors/already-in-use';
 
 interface CreateUserRequest {
   email: string;
@@ -23,16 +24,23 @@ export class CreateUser {
   constructor(private readonly userRepository: UserRepository) {}
 
   async execute(request: CreateUserRequest): Promise<CreateUserResponse> {
-    const user = new User({
-      email: new Email(request.email),
-      fullname: new Fullname(request.fullname),
-      password: new Password(request.password),
-      imageUrl: request.imageUrl ? new Url(request.imageUrl) : undefined,
-      socialId: request.socialId,
-    });
+    const emailAlreadyInUse = await this.userRepository.findByEmail(
+      request.email,
+    );
 
-    await this.userRepository.create(user);
+    if (!emailAlreadyInUse) {
+      const user = new User({
+        email: new Email(request.email),
+        fullname: new Fullname(request.fullname),
+        password: new Password(request.password),
+        imageUrl: request.imageUrl ? new Url(request.imageUrl) : undefined,
+        socialId: request.socialId,
+      });
 
-    return { user };
+      await this.userRepository.create(user);
+      return { user };
+    } else {
+      throw new AlreadyInUse('email');
+    }
   }
 }

@@ -1,7 +1,7 @@
 import { InMemoryUserRepository } from '@test/repositories/in-memory-repository';
 import { GetUser } from './get-user';
 import { makeUser } from '@test/factories/user-factory';
-import { UserNotFound } from './errors/user-not-found';
+import { NotFound } from './errors/user-not-found';
 
 describe('Get user', () => {
   it('should be able to get an user', async () => {
@@ -18,7 +18,7 @@ describe('Get user', () => {
     const userRepository = new InMemoryUserRepository();
     const getUser = new GetUser(userRepository);
     await expect(getUser.execute({ userId: 'mocked-id' })).rejects.toThrow(
-      UserNotFound,
+      new NotFound('user'),
     );
   });
 });

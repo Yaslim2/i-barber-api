@@ -7,8 +7,8 @@ type Override = Partial<UserProps>;
 
 export function makeUser(override: Override = {}) {
   return new User({
-    email: new Email('yaslimsoares15@gmail.com'),
-    fullname: new Fullname('Yaslim Soares'),
+    email: new Email('teste123@gmail.com'),
+    fullname: new Fullname('Teste Teste'),
     password: new Password('Senha123@'),
     ...override,
   });
