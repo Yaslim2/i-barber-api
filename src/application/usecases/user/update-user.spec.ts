@@ -1,7 +1,7 @@
 import { UpdateUser } from './update-user';
 import { makeUser } from '@test/factories/user-factory';
 import { InMemoryUserRepository } from '@test/repositories/in-memory-repository';
-import { NotFound } from './errors/user-not-found';
+import { NotFound } from '../errors/user-not-found';
 
 describe('Update user', () => {
   it('should be able to update an user', async () => {

@@ -2,7 +2,7 @@ import { makeUser } from '@test/factories/user-factory';
 import { InMemoryUserRepository } from '@test/repositories/in-memory-repository';
 import { CreateUser } from './create-user';
 import { Email } from '@application/entities/user/email';
-import { AlreadyInUse } from './errors/already-in-use';
+import { AlreadyInUse } from '../errors/already-in-use';
 
 describe('Create user', () => {
   it('should be able to create an user', async () => {

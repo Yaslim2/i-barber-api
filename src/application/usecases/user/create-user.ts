@@ -5,7 +5,7 @@ import { Password } from '@application/entities/user/password';
 import { User } from '@application/entities/user/user';
 import { UserRepository } from '@application/repositories/user-repository';
 import { Injectable } from '@nestjs/common';
-import { AlreadyInUse } from './errors/already-in-use';
+import { AlreadyInUse } from '../errors/already-in-use';
 
 interface CreateUserRequest {
   email: string;
