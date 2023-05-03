@@ -12,4 +12,10 @@ describe('Fullname', () => {
       new Fullname('TesteTeste');
     }).toThrow();
   });
+
+  it('should not be able to create a fullname with more than 50 characters', () => {
+    expect(() => {
+      new Fullname('Teste Teste'.repeat(5));
+    }).toThrow();
+  });
 });

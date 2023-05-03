@@ -1,18 +1,13 @@
-FROM node:14-alpine
+FROM node:16.14.0
 
-WORKDIR /app
-
-COPY package*.json ./
-RUN npm install
+WORKDIR /usr/src/app
 
 COPY . .
 
-RUN npm run build
-
-RUN npx prisma generate
-
-RUN npx husky install
+RUN yarn install
 
 EXPOSE 3000
 
-CMD ["npm", "run", "start:prod"]
+RUN npx prisma generate
+
+CMD ["yarn", "start:dev"]

@@ -1,4 +1,5 @@
-version: "3"
+version: "3"    
+
 services:
   db:
     image: postgres:latest
@@ -17,7 +18,8 @@ services:
       timeout: 5s
       retries: 5
   app:
-    build: .
+    build: 
+      context: .
     ports:
       - 3000:3000
     depends_on:
@@ -25,5 +27,8 @@ services:
         condition: service_healthy
     environment:
       DATABASE_URL: postgres://ibarberuser:ibarber2323@db:5432/ibarberdb
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
 volumes:
   dbdata:

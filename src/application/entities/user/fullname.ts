@@ -6,7 +6,7 @@ export class Fullname {
   constructor(fullname: string) {
     const isFullnameValid = fullnameValidation(fullname);
 
-    if (!isFullnameValid) {
+    if (!isFullnameValid || fullname.length > 50) {
       throw new Error('Invalid Fullname');
     }
     this.fullname = fullname;
