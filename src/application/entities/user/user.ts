@@ -4,11 +4,13 @@ import { Email } from './email';
 import { Password } from './password';
 import { Fullname } from './fullname';
 import { Url } from '../url/url';
+import { PasswordHash } from './password-hash';
 
 export interface UserProps {
   email: Email;
-  password: Password;
   fullname: Fullname;
+  password?: Password;
+  hashPassword?: PasswordHash;
   imageUrl?: Url;
   socialId?: string;
   createdAt: Date;
@@ -81,5 +83,9 @@ export class User {
 
   public get updatedAt(): Date {
     return this.props.updatedAt;
+  }
+
+  public get hashPassword(): PasswordHash {
+    return this.props.hashPassword;
   }
 }
