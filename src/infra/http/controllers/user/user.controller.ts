@@ -1,5 +1,13 @@
 import { CreateUserBody } from '@infra/http/dtos/create-user-body';
-import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  Param,
+  Patch,
+  Post,
+} from '@nestjs/common';
 import { CreateUser } from '@application/usecases/user/create-user';
 import { GetAllUsers } from '@application/usecases/user/get-all-users';
 import { GetUser } from '@application/usecases/user/get-user';
@@ -17,6 +25,7 @@ export class UserController {
     private readonly updateUser: UpdateUser,
   ) {}
 
+  @HttpCode(201)
   @Post('/create')
   async create(
     @Body() { email, fullname, imageUrl, password }: CreateUserBody,
@@ -44,6 +53,7 @@ export class UserController {
     return { user: UserViewModel.toHTTP(user) };
   }
 
+  @HttpCode(201)
   @Patch('/:id')
   async update(
     @Param('id', ValidationIdParamsPipe) id: string,
