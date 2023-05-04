@@ -1,13 +1,14 @@
 FROM node:16.14.0
 
-WORKDIR /usr/src/app
+WORKDIR /app
 
-COPY . .
+COPY package.json yarn.lock ./
 
 RUN yarn install
 
-EXPOSE 3000
-
 RUN yarn prisma:generate
 
+COPY . .
+
 CMD ["yarn", "start:dev"]
+
