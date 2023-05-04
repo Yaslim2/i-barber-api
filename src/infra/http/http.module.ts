@@ -5,7 +5,7 @@ import { UpdateUser } from '@application/usecases/user/update-user';
 import { CreateUser } from '@application/usecases/user/create-user';
 import { GetAllUsers } from '@application/usecases/user/get-all-users';
 import { GetUser } from '@application/usecases/user/get-user';
-import { UserController } from './controllers/user/create-user.controller';
+import { UserController } from './controllers/user/user.controller';
 
 @Module({
   imports: [DatabaseModule],

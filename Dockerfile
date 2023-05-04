@@ -8,6 +8,6 @@ RUN yarn install
 
 EXPOSE 3000
 
-RUN npx prisma generate
+RUN yarn prisma:generate
 
 CMD ["yarn", "start:dev"]
