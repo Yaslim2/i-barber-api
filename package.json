@@ -23,7 +23,8 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "prepare": "husky install",
     "prisma:generate": "npx prisma generate",
-    "prisma:deploy": "npx prisma migrate deploy"
+    "prisma:deploy": "npx prisma migrate deploy",
+    "prisma:migrate:dev": "npx prisma migrate dev"
   },
   "lint-staged": {
     "*.ts": [
@@ -56,6 +57,7 @@
     "@types/express": "^4.17.13",
     "@types/jest": "28.1.4",
     "@types/node": "^16.0.0",
+    "@types/passport-jwt": "^3.0.8",
     "@types/supertest": "^2.0.11",
     "@typescript-eslint/eslint-plugin": "^5.0.0",
     "@typescript-eslint/parser": "^5.0.0",
