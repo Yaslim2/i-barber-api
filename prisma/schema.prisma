@@ -11,8 +11,7 @@ datasource db {
 }
 
 model User {
-  id           Int            @id @default(autoincrement())
-  secure_id    String         @unique
+  id           String         @id
   email        String         @unique
   fullname     String
   imageUrl     String?        @default("https://cdn-icons-png.flaticon.com/512/1160/1160040.png?w=360%22")
@@ -25,12 +24,11 @@ model User {
 }
 
 model RefreshToken {
-  id        Int      @id @default(autoincrement())
+  id        String   @id
   token     String   @unique
-  secure_id String   @unique
   expiresAt DateTime
-  user      User     @relation(fields: [userId], references: [id])
-  userId    Int      @unique
+  userId    String   @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
+  User      User     @relation(fields: [userId], references: [id])
 }

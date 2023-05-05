@@ -16,7 +16,7 @@ export class PrismaUserMapper {
       imageUrl: user.imageUrl ? user.imageUrl.value : undefined,
       password,
       socialId: user.socialId,
-      secure_id: user.id,
+      id: user.id,
     };
   }
 
@@ -31,7 +31,7 @@ export class PrismaUserMapper {
         updatedAt: raw.updatedAt,
         hashPassword: new PasswordHash(raw.password),
       },
-      raw.secure_id,
+      raw.id,
     );
   }
 }

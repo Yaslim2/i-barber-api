@@ -6,21 +6,20 @@ import { CreateUser } from '@application/usecases/user/create-user';
 import { GetAllUsers } from '@application/usecases/user/get-all-users';
 import { GetUser } from '@application/usecases/user/get-user';
 import { UserController } from './controllers/user/user.controller';
-import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
-import { JwtStrategy } from './strategy/jwt-strategy';
 import { Login } from '@application/usecases/auth/login';
+import { AuthController } from './controllers/auth/auth.controller';
+import { Logout } from '@application/usecases/auth/logout';
 
 @Module({
   imports: [
     DatabaseModule,
-    PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.register({
-      secret: process.env.JWT_SECRET,
+      secret: process.env.JWT_ACCESS_TOKEN_SECRET,
       signOptions: { expiresIn: '30m' },
     }),
   ],
-  controllers: [HealthController, UserController],
-  providers: [CreateUser, UpdateUser, GetAllUsers, GetUser, JwtStrategy, Login],
+  controllers: [HealthController, UserController, AuthController],
+  providers: [CreateUser, UpdateUser, GetAllUsers, GetUser, Login, Logout],
 })
 export class HttpModule {}

@@ -4,7 +4,7 @@ export class PrismaAuthMapper {
   static async toPrisma(refreshToken: RefreshToken) {
     return {
       expiresAt: refreshToken.expiresAt,
-      secure_id: refreshToken.id,
+      id: refreshToken.id,
       token: refreshToken.token,
       userId: refreshToken.userId,
     };
@@ -19,7 +19,7 @@ export class PrismaAuthMapper {
         createdAt: raw.createdAt,
         updatedAt: raw.updatedAt,
       },
-      raw.secure_id,
+      raw.id,
     );
   }
 }

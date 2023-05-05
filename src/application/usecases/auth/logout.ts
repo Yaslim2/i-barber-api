@@ -12,7 +12,7 @@ export class Logout {
   ) {}
 
   async execute(request: LogoutRequest): Promise<void> {
-    const user = await this.userRepository.findByIdRawUser(request.userId);
+    const user = await this.userRepository.findById(request.userId);
 
     if (user) {
       await this.authRepository.deleteRefreshToken(user.id);

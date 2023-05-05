@@ -4,7 +4,7 @@ import { Replace } from '@helpers/Replace';
 export interface RefreshTokenProps {
   token: string;
   expiresAt: Date;
-  userId: number;
+  userId: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -37,7 +37,7 @@ export class RefreshToken {
     return this.expiresAt;
   }
 
-  public get userId(): number {
+  public get userId(): string {
     return this.userId;
   }
 

@@ -14,7 +14,7 @@ export class PrismaAuthRepository implements AuthRepository {
       data,
     });
   }
-  async findRefreshToken(userId: number): Promise<RefreshToken | null> {
+  async findRefreshToken(userId: string): Promise<RefreshToken | null> {
     const refreshToken = await this.prismaService.refreshToken.findUnique({
       where: { userId: userId },
     });
@@ -23,7 +23,7 @@ export class PrismaAuthRepository implements AuthRepository {
 
     return PrismaAuthMapper.toDomain(refreshToken);
   }
-  async deleteRefreshToken(userId: number): Promise<void> {
+  async deleteRefreshToken(userId: string): Promise<void> {
     await this.prismaService.refreshToken.delete({ where: { userId } });
   }
 }

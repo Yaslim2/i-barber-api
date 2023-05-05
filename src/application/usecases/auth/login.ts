@@ -1,8 +1,6 @@
 import { RefreshToken } from '@application/entities/auth/refresh-token';
-import {
-  AuthRepository,
-  TokenResponse,
-} from '@application/repositories/auth-repository';
+import { User } from '@application/entities/user/user';
+import { AuthRepository } from '@application/repositories/auth-repository';
 import { UserRepository } from '@application/repositories/user-repository';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -11,7 +9,13 @@ interface LoginRequest {
   email: string;
   password: string;
 }
-import { User } from '@prisma/client';
+
+export interface LoginResponse {
+  user: User;
+  accessToken: string;
+  refreshToken: RefreshToken;
+}
+
 @Injectable()
 export class Login {
   constructor(
@@ -20,21 +24,24 @@ export class Login {
     private readonly authRepository: AuthRepository,
   ) {}
 
-  async execute(request: LoginRequest): Promise<TokenResponse> {
+  async execute(request: LoginRequest): Promise<LoginResponse> {
     const user = await this.validateUser(request);
     const refreshToken = await this.authRepository.findRefreshToken(user.id);
     if (refreshToken) {
       await this.authRepository.deleteRefreshToken(user.id);
     }
     const tokenResponse = this.generateToken(user);
-    await this.authRepository.saveRefreshToken(
-      new RefreshToken({
-        expiresAt: this.handleGenerateExpiresAt(),
-        token: tokenResponse.refresh_token,
-        userId: user.id,
-      }),
-    );
-    return tokenResponse;
+    const newRefreshToken = new RefreshToken({
+      expiresAt: this.handleGenerateExpiresAt(),
+      token: tokenResponse.refresh_token,
+      userId: user.id,
+    });
+    await this.authRepository.saveRefreshToken(newRefreshToken);
+    return {
+      user,
+      accessToken: tokenResponse.access_token,
+      refreshToken: newRefreshToken,
+    };
   }
 
   private handleGenerateExpiresAt() {
@@ -45,14 +52,20 @@ export class Login {
   private generateToken(user: User) {
     const payload = { email: user.email, sub: user.id };
     return {
-      access_token: this.jwtService.sign(payload),
-      refresh_token: this.jwtService.sign(payload, { expiresIn: '7d' }),
+      access_token: this.jwtService.sign(payload, {
+        expiresIn: '60s',
+        secret: process.env.JWT_ACCESS_TOKEN_SECRET,
+      }),
+      refresh_token: this.jwtService.sign(payload, {
+        expiresIn: '7d',
+        secret: process.env.JWT_REFRESH_TOKEN_SECRET,
+      }),
     };
   }
 
   private async validateUser(request: LoginRequest) {
     const user = await this.userRepository.findByEmail(request.email);
-    if (bcrypt.compareSync(request.password, user.password)) {
+    if (bcrypt.compareSync(request.password, user.password.value)) {
       return user;
     } else {
       throw new UnauthorizedException();
