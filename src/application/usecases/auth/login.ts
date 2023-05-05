@@ -53,7 +53,6 @@ export class Login {
     const payload = { email: user.email, sub: user.id };
     return {
       access_token: this.jwtService.sign(payload, {
-        expiresIn: '60s',
         secret: process.env.JWT_ACCESS_TOKEN_SECRET,
       }),
       refresh_token: this.jwtService.sign(payload, {

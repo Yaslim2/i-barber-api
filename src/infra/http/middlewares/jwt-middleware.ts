@@ -1,4 +1,6 @@
 import { Injectable, NestMiddleware } from '@nestjs/common';
+import { Unauthorized } from '@application/usecases/errors/unauthorized';
+import { NotFound } from '@application/usecases/errors/user-not-found';
 import { Request, Response, NextFunction } from 'express';
 import { JwtService } from '@nestjs/jwt';
 import { UserRepository } from '@application/repositories/user-repository';
@@ -22,7 +24,7 @@ export class JwtMiddleware implements NestMiddleware {
     const accessToken = req.cookies['access_token'];
 
     if (!accessToken) {
-      return res.status(401).json({ message: 'Missing or invalid token' });
+      throw new Unauthorized();
     }
 
     try {
@@ -40,7 +42,7 @@ export class JwtMiddleware implements NestMiddleware {
         const refreshToken = req.cookies['refresh_token'];
 
         if (!refreshToken) {
-          return res.status(401).json({ message: 'Missing or invalid token' });
+          throw new Unauthorized();
         }
 
         try {
@@ -56,19 +58,16 @@ export class JwtMiddleware implements NestMiddleware {
           );
 
           if (!refreshTokenData) {
-            return res
-              .status(401)
-              .json({ message: 'Missing or invalid token' });
+            throw new Unauthorized();
           }
 
           const user = await this.userRepository.findById(payload.sub);
 
           if (!user) {
-            return res.status(401).json({ message: 'User not found' });
+            throw new NotFound('User');
           }
 
           const newAccessToken = this.jwtService.sign(payload, {
-            expiresIn: '60s',
             secret: process.env.JWT_ACCESS_TOKEN_SECRET,
           });
 
@@ -95,7 +94,7 @@ export class JwtMiddleware implements NestMiddleware {
           req.user = user;
           return next();
         } catch (error) {
-          return res.status(401).json({ message: 'Missing or invalid token' });
+          throw new Unauthorized();
         }
       }
     }
