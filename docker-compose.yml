@@ -29,6 +29,5 @@ services:
       DATABASE_URL: postgres://ibarberuser:ibarber2323@db:5432/ibarberdb
     volumes:
       - .:/app
-      - /app/node_modules
 volumes:
   dbdata:
