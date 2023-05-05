@@ -6,7 +6,7 @@ import { CreateUser } from '@application/usecases/user/create-user';
 import { GetAllUsers } from '@application/usecases/user/get-all-users';
 import { GetUser } from '@application/usecases/user/get-user';
 import { UserController } from './controllers/user/user.controller';
-import { JwtModule } from '@nestjs/jwt';
+import { JwtModule, JwtService } from '@nestjs/jwt';
 import { Login } from '@application/usecases/auth/login';
 import { AuthController } from './controllers/auth/auth.controller';
 import { Logout } from '@application/usecases/auth/logout';
@@ -20,6 +20,15 @@ import { Logout } from '@application/usecases/auth/logout';
     }),
   ],
   controllers: [HealthController, UserController, AuthController],
-  providers: [CreateUser, UpdateUser, GetAllUsers, GetUser, Login, Logout],
+  providers: [
+    CreateUser,
+    UpdateUser,
+    GetAllUsers,
+    GetUser,
+    Login,
+    Logout,
+    JwtService,
+  ],
+  exports: [JwtService],
 })
 export class HttpModule {}
