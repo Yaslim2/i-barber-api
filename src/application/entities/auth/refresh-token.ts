@@ -34,18 +34,18 @@ export class RefreshToken {
   }
 
   public get expiresAt(): Date {
-    return this.expiresAt;
+    return this.props.expiresAt;
   }
 
   public get userId(): string {
-    return this.userId;
+    return this.props.userId;
   }
 
   public get createdAt(): Date {
-    return this.createdAt;
+    return this.props.createdAt;
   }
 
   public get updatedAt(): Date {
-    return this.updatedAt;
+    return this.props.updatedAt;
   }
 }

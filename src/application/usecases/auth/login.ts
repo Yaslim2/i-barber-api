@@ -2,9 +2,10 @@ import { RefreshToken } from '@application/entities/auth/refresh-token';
 import { User } from '@application/entities/user/user';
 import { AuthRepository } from '@application/repositories/auth-repository';
 import { UserRepository } from '@application/repositories/user-repository';
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
+import { Unauthorized } from '../errors/unauthorized';
 interface LoginRequest {
   email: string;
   password: string;
@@ -36,6 +37,7 @@ export class Login {
       token: tokenResponse.refresh_token,
       userId: user.id,
     });
+
     await this.authRepository.saveRefreshToken(newRefreshToken);
     return {
       user,
@@ -64,10 +66,10 @@ export class Login {
 
   private async validateUser(request: LoginRequest) {
     const user = await this.userRepository.findByEmail(request.email);
-    if (bcrypt.compareSync(request.password, user.password.value)) {
+    if (user && bcrypt.compareSync(request.password, user.hashPassword.value)) {
       return user;
     } else {
-      throw new UnauthorizedException();
+      throw new Unauthorized();
     }
   }
 }

@@ -3,10 +3,10 @@ import { RefreshToken as RawRefreshToken } from '@prisma/client';
 export class PrismaAuthMapper {
   static async toPrisma(refreshToken: RefreshToken) {
     return {
-      expiresAt: refreshToken.expiresAt,
+      expiresAt: refreshToken.expiresAt.toISOString(),
       id: refreshToken.id,
       token: refreshToken.token,
-      userId: refreshToken.userId,
+      User: { connect: { id: refreshToken.userId } },
     };
   }
 
