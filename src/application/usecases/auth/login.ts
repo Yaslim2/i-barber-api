@@ -1,9 +1,9 @@
 import { User } from '@application/entities/user/user';
 import { UserRepository } from '@application/repositories/user-repository';
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnprocessableEntityException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
-import { Unauthorized } from '../errors/unauthorized';
+import { NotFound } from '../errors/user-not-found';
 interface LoginRequest {
   email: string;
   password: string;
@@ -50,10 +50,14 @@ export class Login {
 
   private async validateUser(request: LoginRequest) {
     const user = await this.userRepository.findByEmail(request.email);
-    if (user && bcrypt.compareSync(request.password, user.hashPassword.value)) {
-      return user;
+    if (user) {
+      if (bcrypt.compareSync(request.password, user.hashPassword.value)) {
+        return user;
+      } else {
+        throw new UnprocessableEntityException('Username or password invalid');
+      }
     } else {
-      throw new Unauthorized();
+      throw new NotFound('user');
     }
   }
 }
