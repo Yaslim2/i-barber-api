@@ -9,7 +9,6 @@ import { UserController } from './controllers/user/user.controller';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { Login } from '@application/usecases/auth/login';
 import { AuthController } from './controllers/auth/auth.controller';
-import { Logout } from '@application/usecases/auth/logout';
 
 @Module({
   imports: [
@@ -20,15 +19,7 @@ import { Logout } from '@application/usecases/auth/logout';
     }),
   ],
   controllers: [HealthController, UserController, AuthController],
-  providers: [
-    CreateUser,
-    UpdateUser,
-    GetAllUsers,
-    GetUser,
-    Login,
-    Logout,
-    JwtService,
-  ],
+  providers: [CreateUser, UpdateUser, GetAllUsers, GetUser, Login, JwtService],
   exports: [JwtService],
 })
 export class HttpModule {}

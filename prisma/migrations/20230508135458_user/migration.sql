@@ -1,7 +1,6 @@
 -- CreateTable
 CREATE TABLE "User" (
-    "id" SERIAL NOT NULL,
-    "secure_id" TEXT NOT NULL,
+    "id" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "fullname" TEXT NOT NULL,
     "imageUrl" TEXT DEFAULT 'https://cdn-icons-png.flaticon.com/512/1160/1160040.png?w=360%22',
@@ -12,9 +11,6 @@ CREATE TABLE "User" (
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );
-
--- CreateIndex
-CREATE UNIQUE INDEX "User_secure_id_key" ON "User"("secure_id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");

@@ -1,31 +1,34 @@
-import { Body, Controller, HttpCode, Param, Post } from '@nestjs/common';
+import { Body, Controller, HttpCode, Post, Response } from '@nestjs/common';
 import { UserViewModel } from '@infra/http/view-models/user-view-model';
 import { Login } from '@application/usecases/auth/login';
-import { Logout } from '@application/usecases/auth/logout';
 import { LoginUserBody } from '@infra/http/dtos/login-user-body';
-import { AuthViewModel } from '@infra/http/view-models/auth-view-model';
-import { ValidationIdParamsPipe } from '@infra/pipes/validation-params-id.pipe';
+import { Response as ResponseExpress } from 'express';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly login: Login, private readonly logout: Logout) {}
+  constructor(private readonly login: Login) {}
 
   @Post('/login')
-  async loginUser(@Body() { email, password }: LoginUserBody) {
+  async loginUser(
+    @Body() { email, password }: LoginUserBody,
+    @Response() res: ResponseExpress,
+  ) {
     const { user, accessToken, refreshToken } = await this.login.execute({
       email,
       password,
     });
-    return {
+    res.cookie('access_token', accessToken, { httpOnly: true });
+    res.cookie('refresh_token', refreshToken, { httpOnly: true });
+    return res.status(201).send({
       user: UserViewModel.toHTTP(user),
-      accessToken,
-      refreshToken: AuthViewModel.toHTTP(refreshToken),
-    };
+    });
   }
 
   @HttpCode(204)
-  @Post('/logout/:id')
-  async logoutUser(@Param('id', ValidationIdParamsPipe) id: string) {
-    await this.logout.execute({ userId: id });
+  @Post('/logout')
+  async logoutUser(@Response() res: ResponseExpress) {
+    res.clearCookie('access_token');
+    res.clearCookie('refresh_token');
+    return res.status(204);
   }
 }

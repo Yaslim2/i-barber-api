@@ -13,6 +13,7 @@ export class AppModule {
       .exclude(
         { path: 'auth/login', method: RequestMethod.POST },
         { path: '/user/create', method: RequestMethod.POST },
+        { path: '/health', method: RequestMethod.GET },
       )
       .forRoutes('*');
   }
