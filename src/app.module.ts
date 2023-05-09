@@ -19,6 +19,10 @@ export class AppModule {
           path: '/auth/check-verification-code/:code',
           method: RequestMethod.GET,
         },
+        {
+          path: '/email',
+          method: RequestMethod.GET,
+        },
       )
       .forRoutes('*');
   }

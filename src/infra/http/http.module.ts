@@ -10,6 +10,7 @@ import { JwtModule, JwtService } from '@nestjs/jwt';
 import { Login } from '@application/usecases/auth/login';
 import { AuthController } from './controllers/auth/auth.controller';
 import { SendSms } from '@application/usecases/sms/send-sms';
+import { SendMail } from '@application/usecases/email/send-email';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { SendSms } from '@application/usecases/sms/send-sms';
     Login,
     JwtService,
     SendSms,
+    SendMail,
   ],
   exports: [JwtService],
 })
