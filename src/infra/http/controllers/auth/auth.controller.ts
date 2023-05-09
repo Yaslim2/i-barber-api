@@ -15,7 +15,7 @@ import {
   Response as ResponseExpress,
   Request as RequestExpress,
 } from 'express';
-import { Sms } from '@application/usecases/sms/sms';
+import { SendSms } from '@application/usecases/sms/send-sms';
 import { randomVerificationCode } from '@helpers/random-verification-code';
 // import { smsVerificationText } from '@helpers/sms-verification-text';
 import { SmsVerificationBody } from '@infra/http/dtos/sms-verification-body';
@@ -23,7 +23,10 @@ import { Unauthorized } from '@application/usecases/errors/unauthorized';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly login: Login, private readonly sms: Sms) {}
+  constructor(
+    private readonly login: Login,
+    private readonly sendSms: SendSms,
+  ) {}
 
   @Post('/login')
   async loginUser(
@@ -55,7 +58,7 @@ export class AuthController {
     @Body() { phoneNumber }: SmsVerificationBody,
   ) {
     const verificationCode = randomVerificationCode();
-    // await this.sms.sendSms(
+    // await this.sendSms.execute(
     //   process.env.TWILIO_PHONE_NUMBER_AUTHENTICATED,
     //   smsVerificationText(verificationCode),
     // );

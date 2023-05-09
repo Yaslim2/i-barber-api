@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import * as twilio from 'twilio';
 
 @Injectable()
-export class Sms {
+export class SendSms {
   private client: twilio.Twilio;
 
   constructor() {
@@ -12,7 +12,7 @@ export class Sms {
     );
   }
 
-  async sendSms(to: string, body: string) {
+  async execute(to: string, body: string) {
     return await this.client.messages.create({
       to,
       from: process.env.TWILIO_PHONE_NUMBER,
