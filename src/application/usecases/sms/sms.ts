@@ -12,8 +12,8 @@ export class Sms {
     );
   }
 
-  async sendSms(to: string, body: string): Promise<void> {
-    await this.client.messages.create({
+  async sendSms(to: string, body: string) {
+    return await this.client.messages.create({
       to,
       from: process.env.TWILIO_PHONE_NUMBER,
       body,

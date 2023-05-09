@@ -3,6 +3,7 @@ import { PasswordValidation } from '@helpers/password-validation';
 import { UrlValidation } from '@helpers/url-validation';
 import {
   IsEmail,
+  IsMobilePhone,
   IsNotEmpty,
   IsOptional,
   IsString,
@@ -54,4 +55,10 @@ export class CreateUserBody {
   @IsString({ message: 'Preencha o campo | url | apenas com texto' })
   @IsOptional()
   imageUrl: string;
+
+  @IsNotEmpty({
+    message: 'O campo | número de telefone | não deve estar vazio',
+  })
+  @IsMobilePhone('pt-BR', { strictMode: true })
+  phoneNumber: string;
 }

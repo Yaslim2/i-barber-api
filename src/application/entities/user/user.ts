@@ -5,10 +5,12 @@ import { Password } from './password';
 import { Fullname } from './fullname';
 import { Url } from '../url/url';
 import { PasswordHash } from './password-hash';
+import { PhoneNumber } from './phone-number';
 
 export interface UserProps {
   email: Email;
   fullname: Fullname;
+  phoneNumber: PhoneNumber;
   password?: Password;
   hashPassword?: PasswordHash;
   imageUrl?: Url;
@@ -37,12 +39,20 @@ export class User {
     return this._id;
   }
 
+  public get email(): Email {
+    return this.props.email;
+  }
+
   public set email(email: Email) {
     this.props.email = email;
   }
 
-  public get email(): Email {
-    return this.props.email;
+  public get phoneNumber(): PhoneNumber {
+    return this.props.phoneNumber;
+  }
+
+  public set phoneNumber(phoneNumber: PhoneNumber) {
+    this.props.phoneNumber = phoneNumber;
   }
 
   public get fullname(): Fullname {

@@ -14,6 +14,11 @@ export class AppModule {
         { path: 'auth/login', method: RequestMethod.POST },
         { path: '/user/create', method: RequestMethod.POST },
         { path: '/health', method: RequestMethod.GET },
+        { path: '/auth/send-sms-verification', method: RequestMethod.POST },
+        {
+          path: '/auth/check-verification-code/:code',
+          method: RequestMethod.GET,
+        },
       )
       .forRoutes('*');
   }

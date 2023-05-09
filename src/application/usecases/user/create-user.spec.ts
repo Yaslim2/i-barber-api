@@ -13,6 +13,7 @@ describe('Create user', () => {
       email: 'teste123@gmail.com',
       fullname: 'Teste Teste',
       password: 'Senha123@',
+      phoneNumber: '+5585992537717',
     });
 
     expect(userRepository.users).toHaveLength(1);
@@ -32,6 +33,7 @@ describe('Create user', () => {
         email: 'teste123@gmail.com',
         fullname: 'Teste Teste',
         password: 'Teste123@',
+        phoneNumber: '+5585992537717',
       }),
     ).rejects.toThrow(new AlreadyInUse('email'));
   });

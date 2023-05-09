@@ -28,13 +28,15 @@ export class UserController {
   @HttpCode(201)
   @Post('/create')
   async create(
-    @Body() { email, fullname, imageUrl, password }: CreateUserBody,
+    @Body()
+    { email, fullname, imageUrl, password, phoneNumber }: CreateUserBody,
   ) {
     const { user } = await this.createUser.execute({
       email,
       fullname,
       password,
       imageUrl,
+      phoneNumber,
     });
     return { user: UserViewModel.toHTTP(user) };
   }

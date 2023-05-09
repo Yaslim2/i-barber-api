@@ -1,12 +1,29 @@
-import { Body, Controller, HttpCode, Post, Response } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpCode,
+  Post,
+  Response,
+  Get,
+  Request,
+  Param,
+} from '@nestjs/common';
 import { UserViewModel } from '@infra/http/view-models/user-view-model';
 import { Login } from '@application/usecases/auth/login';
 import { LoginUserBody } from '@infra/http/dtos/login-user-body';
-import { Response as ResponseExpress } from 'express';
+import {
+  Response as ResponseExpress,
+  Request as RequestExpress,
+} from 'express';
+import { Sms } from '@application/usecases/sms/sms';
+import { randomVerificationCode } from '@helpers/random-verification-code';
+// import { smsVerificationText } from '@helpers/sms-verification-text';
+import { SmsVerificationBody } from '@infra/http/dtos/sms-verification-body';
+import { Unauthorized } from '@application/usecases/errors/unauthorized';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly login: Login) {}
+  constructor(private readonly login: Login, private readonly sms: Sms) {}
 
   @Post('/login')
   async loginUser(
@@ -29,6 +46,52 @@ export class AuthController {
   async logoutUser(@Response() res: ResponseExpress) {
     res.clearCookie('access_token');
     res.clearCookie('refresh_token');
-    return res.status(204);
+    return res.status(204).send();
+  }
+
+  @Post('send-sms-verification')
+  async sendSmsVerification(
+    @Response() res: ResponseExpress,
+    @Body() { phoneNumber }: SmsVerificationBody,
+  ) {
+    const verificationCode = randomVerificationCode();
+    // await this.sms.sendSms(
+    //   process.env.TWILIO_PHONE_NUMBER_AUTHENTICATED,
+    //   smsVerificationText(verificationCode),
+    // );
+    console.warn('The sms should have been sent to that number', phoneNumber, {
+      verificationCode,
+    });
+    res.clearCookie('verification_code');
+    res.clearCookie('verification_code_expiration');
+    res.cookie('verification_code', verificationCode, { httpOnly: true });
+    res.cookie(
+      'verification_code_expiration',
+      new Date(new Date().getTime() + 5 * 60 * 1000).getTime(),
+    );
+    return res.status(204).send();
+  }
+
+  @Get('check-verification-code/:code')
+  async checkVerificationCode(
+    @Response() res: ResponseExpress,
+    @Request() req: RequestExpress,
+    @Param('code') code: string,
+  ) {
+    const verificationCode = req.cookies['verification_code'];
+    const verificationCodeExpiration =
+      req.cookies['verification_code_expiration'];
+    if (
+      verificationCode === code &&
+      Number(verificationCodeExpiration) > new Date().getTime()
+    ) {
+      res.clearCookie('verification_code');
+      res.clearCookie('verification_code_expiration');
+      return res
+        .status(200)
+        .send({ message: 'Verification complete successfully' });
+    } else {
+      throw new Unauthorized();
+    }
   }
 }

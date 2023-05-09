@@ -6,10 +6,12 @@ import { User } from '@application/entities/user/user';
 import { UserRepository } from '@application/repositories/user-repository';
 import { Injectable } from '@nestjs/common';
 import { AlreadyInUse } from '../errors/already-in-use';
+import { PhoneNumber } from '@application/entities/user/phone-number';
 
 interface CreateUserRequest {
   email: string;
   password: string;
+  phoneNumber: string;
   fullname: string;
   imageUrl?: string;
   socialId?: string;
@@ -32,6 +34,7 @@ export class CreateUser {
       const user = new User({
         email: new Email(request.email),
         fullname: new Fullname(request.fullname),
+        phoneNumber: new PhoneNumber(request.phoneNumber),
         password: new Password(request.password),
         imageUrl: request.imageUrl ? new Url(request.imageUrl) : undefined,
         socialId: request.socialId,

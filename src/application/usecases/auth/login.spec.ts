@@ -9,6 +9,7 @@ import { User } from '@application/entities/user/user';
 import { Fullname } from '@application/entities/user/fullname';
 import { UnprocessableEntityException } from '@nestjs/common';
 import { NotFound } from '../errors/user-not-found';
+import { PhoneNumber } from '@application/entities/user/phone-number';
 describe('Login user', () => {
   it('should be able to login the user', async () => {
     const userRepository = new InMemoryUserRepository();
@@ -20,6 +21,7 @@ describe('Login user', () => {
       password: new Password('Teste123@'),
       hashPassword: new PasswordHash(passwordHashed),
       fullname: new Fullname('Yaslim Soares'),
+      phoneNumber: new PhoneNumber('+5585992537717'),
     });
     await userRepository.create(createdUser);
     const { accessToken, refreshToken, user } = await login.execute({
@@ -41,6 +43,7 @@ describe('Login user', () => {
       password: new Password('Teste123@'),
       hashPassword: new PasswordHash(passwordHashed),
       fullname: new Fullname('Yaslim Soares'),
+      phoneNumber: new PhoneNumber('+5585992537717'),
     });
     await userRepository.create(createdUser);
     await expect(

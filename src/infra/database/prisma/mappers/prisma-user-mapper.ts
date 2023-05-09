@@ -2,6 +2,7 @@ import { Url } from '@application/entities/url/url';
 import { Email } from '@application/entities/user/email';
 import { Fullname } from '@application/entities/user/fullname';
 import { PasswordHash } from '@application/entities/user/password-hash';
+import { PhoneNumber } from '@application/entities/user/phone-number';
 import { User } from '@application/entities/user/user';
 import { hashPassword } from '@helpers/hash-password';
 import { User as RawUser } from '@prisma/client';
@@ -17,6 +18,7 @@ export class PrismaUserMapper {
       password,
       socialId: user.socialId,
       id: user.id,
+      phoneNumber: user.phoneNumber.value,
     };
   }
 
@@ -30,6 +32,7 @@ export class PrismaUserMapper {
         createdAt: raw.createdAt,
         updatedAt: raw.updatedAt,
         hashPassword: new PasswordHash(raw.password),
+        phoneNumber: new PhoneNumber(raw.phoneNumber),
       },
       raw.id,
     );
