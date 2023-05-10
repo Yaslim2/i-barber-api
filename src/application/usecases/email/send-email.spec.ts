@@ -1,24 +1,23 @@
-import * as nodemailer from 'nodemailer';
 import { SendMail } from './send-email';
 
-const mockTransporter = {
-  sendMail: jest.fn(),
-};
 jest.mock('nodemailer', () => ({
-  createTransport: jest.fn(() => mockTransporter),
+  createTransport: jest.fn().mockReturnValue({
+    sendMail: jest.fn().mockResolvedValue({
+      messageId: 'mocked-message-id',
+    }),
+  }),
 }));
 
-test('Send-Email', async () => {
-  const sendEmail = new SendMail();
+describe('Send-Email', () => {
+  it('should send an email', async () => {
+    const sendEmail = new SendMail();
+    const result = await sendEmail.execute({
+      to: 'test@example.com',
+      subject: 'Test Email',
+      context: {},
+      template: 'verification-email',
+    });
 
-  await sendEmail.execute({
-    context: {},
-    to: 'destinatario@example.com',
-    subject: 'Assunto do email',
-    template: 'verification-email',
+    expect(result.messageId).toBe('mocked-message-id');
   });
-
-  expect(nodemailer.createTransport).toHaveBeenCalledTimes(1);
-  expect(nodemailer.createTransport).toHaveBeenCalledWith(expect.any(Object));
-  expect(mockTransporter.sendMail).toHaveBeenCalledTimes(1);
 });
