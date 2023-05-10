@@ -22,6 +22,7 @@ import { SmsVerificationBody } from '@infra/http/dtos/sms-verification-body';
 import { Unauthorized } from '@application/usecases/errors/unauthorized';
 import { SendMail } from '@application/usecases/email/send-email';
 import { EmailVerificationBody } from '@infra/http/dtos/email-verification-body';
+import * as momentTimezone from 'moment-timezone';
 
 @Controller('auth')
 export class AuthController {
@@ -100,6 +101,30 @@ export class AuthController {
     return res.status(204).send();
   }
 
+  @Post('send-forgot-password-email')
+  async sendForgotPasswordEmail(
+    @Response() res: ResponseExpress,
+    @Body() { email }: EmailVerificationBody,
+  ) {
+    const verificationCode = randomVerificationCode();
+    const date = momentTimezone().tz('America/Sao_Paulo').format('DD/MM/YYYY');
+    const time = momentTimezone().tz('America/Sao_Paulo').format('HH:mm:ss');
+    await this.sendEmail.execute({
+      to: email,
+      context: { verificationCode, date, time },
+      subject: 'Redefinição de Senha | iBarber',
+      template: 'forgot-password',
+    });
+    res.clearCookie('forgot_password_code');
+    res.clearCookie('forgot_password_code_expiration');
+    res.cookie('forgot_password_code', verificationCode, { httpOnly: true });
+    res.cookie(
+      'forgot_password_code_expiration',
+      new Date(new Date().getTime() + 5 * 60 * 1000).getTime(),
+    );
+    return res.status(204).send();
+  }
+
   @Get('check-verification-code/:code')
   async checkVerificationCode(
     @Response() res: ResponseExpress,
@@ -138,6 +163,29 @@ export class AuthController {
     ) {
       res.clearCookie('verification_email_code');
       res.clearCookie('verification_email_code_expiration');
+      return res
+        .status(200)
+        .send({ message: 'Verification complete successfully' });
+    } else {
+      throw new Unauthorized();
+    }
+  }
+
+  @Get('check-forgot-password-code/:code')
+  async checkForgotPasswordCode(
+    @Response() res: ResponseExpress,
+    @Request() req: RequestExpress,
+    @Param('code') code: string,
+  ) {
+    const verificationCode = req.cookies['forgot_password_code'];
+    const verificationCodeExpiration =
+      req.cookies['forgot_password_code_expiration'];
+    if (
+      verificationCode === code &&
+      Number(verificationCodeExpiration) > new Date().getTime()
+    ) {
+      res.clearCookie('forgot_password_code');
+      res.clearCookie('forgot_password_code_expiration');
       return res
         .status(200)
         .send({ message: 'Verification complete successfully' });

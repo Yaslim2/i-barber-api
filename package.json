@@ -75,6 +75,7 @@
     "husky": "^8.0.3",
     "jest": "28.1.2",
     "lint-staged": "^13.2.2",
+    "moment": "^2.29.4",
     "moment-timezone": "^0.5.43",
     "prettier": "^2.3.2",
     "prisma": "^4.13.0",
