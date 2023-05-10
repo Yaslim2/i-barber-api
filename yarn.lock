@@ -4559,6 +4559,13 @@ node-releases@^2.0.8:
   resolved "https://registry.yarnpkg.com/node-releases/-/node-releases-2.0.10.tgz#c311ebae3b6a148c89b1813fd7c4d3c024ef537f"
   integrity sha512-5GFldHPXVG/YZmFzJvKK2zDSzPKhEp0+ZR5SVaoSag9fsL5YgHbUHDfnG5494ISANDcK4KwPXAx2xqVEydmd7w==
 
+nodemailer-mock@^2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/nodemailer-mock/-/nodemailer-mock-2.0.1.tgz#93831d6f5b0426c776bb3ad7e4edb380543f6c20"
+  integrity sha512-2gkdW/ApexF/Y9EwJ/FXF4Df+1n/Y6Oek29QzsVJf/kMXshDW7q4CVzK/yTFFUw3Z0XnxNZNi/hG9RmMe6HHpg==
+  dependencies:
+    debug "^4.3.4"
+
 nodemailer@^6.9.1:
   version "6.9.1"
   resolved "https://registry.yarnpkg.com/nodemailer/-/nodemailer-6.9.1.tgz#8249d928a43ed85fec17b13d2870c8f758a126ed"

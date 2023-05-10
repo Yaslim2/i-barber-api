@@ -76,6 +76,7 @@
     "jest": "28.1.2",
     "lint-staged": "^13.2.2",
     "moment-timezone": "^0.5.43",
+    "nodemailer-mock": "^2.0.1",
     "prettier": "^2.3.2",
     "prisma": "^4.13.0",
     "source-map-support": "^0.5.20",

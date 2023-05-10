@@ -12,7 +12,7 @@ export class SendSms {
     );
   }
 
-  async execute(to: string, body: string) {
+  async execute({ to, body }: { to: string; body: string }) {
     return await this.client.messages.create({
       to,
       from: process.env.TWILIO_PHONE_NUMBER,

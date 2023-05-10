@@ -20,12 +20,15 @@ import { randomVerificationCode } from '@helpers/random-verification-code';
 // import { smsVerificationText } from '@helpers/sms-verification-text';
 import { SmsVerificationBody } from '@infra/http/dtos/sms-verification-body';
 import { Unauthorized } from '@application/usecases/errors/unauthorized';
+import { SendMail } from '@application/usecases/email/send-email';
+import { EmailVerificationBody } from '@infra/http/dtos/email-verification-body';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly login: Login,
     private readonly sendSms: SendSms,
+    private readonly sendEmail: SendMail,
   ) {}
 
   @Post('/login')
@@ -75,6 +78,28 @@ export class AuthController {
     return res.status(204).send();
   }
 
+  @Post('send-email-verification')
+  async sendEmailVerification(
+    @Response() res: ResponseExpress,
+    @Body() { email }: EmailVerificationBody,
+  ) {
+    const verificationCode = randomVerificationCode();
+    await this.sendEmail.execute({
+      to: email,
+      context: { verificationCode },
+      subject: 'iBarber - Confirmação de E-mail',
+      template: 'verification-email',
+    });
+    res.clearCookie('verification_email_code');
+    res.clearCookie('verification_email_code_expiration');
+    res.cookie('verification_email_code', verificationCode, { httpOnly: true });
+    res.cookie(
+      'verification_email_code_expiration',
+      new Date(new Date().getTime() + 5 * 60 * 1000).getTime(),
+    );
+    return res.status(204).send();
+  }
+
   @Get('check-verification-code/:code')
   async checkVerificationCode(
     @Response() res: ResponseExpress,
@@ -90,6 +115,29 @@ export class AuthController {
     ) {
       res.clearCookie('verification_code');
       res.clearCookie('verification_code_expiration');
+      return res
+        .status(200)
+        .send({ message: 'Verification complete successfully' });
+    } else {
+      throw new Unauthorized();
+    }
+  }
+
+  @Get('check-verification-email-code/:code')
+  async checkVerificationEmailCode(
+    @Response() res: ResponseExpress,
+    @Request() req: RequestExpress,
+    @Param('code') code: string,
+  ) {
+    const verificationCode = req.cookies['verification_email_code'];
+    const verificationCodeExpiration =
+      req.cookies['verification_email_code_expiration'];
+    if (
+      verificationCode === code &&
+      Number(verificationCodeExpiration) > new Date().getTime()
+    ) {
+      res.clearCookie('verification_email_code');
+      res.clearCookie('verification_email_code_expiration');
       return res
         .status(200)
         .send({ message: 'Verification complete successfully' });

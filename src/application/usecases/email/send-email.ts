@@ -24,7 +24,7 @@ export class SendMail {
     template: string;
     context: any;
   }): Promise<nodemailer.SentMessageInfo> {
-    const templateFile = `src/templates/${options.template}.hbs`;
+    const templateFile = `src/templates/${options.template}/${options.template}.hbs`;
     const template = Handlebars.compile(fs.readFileSync(templateFile, 'utf-8'));
     const html = template(options.context);
     return await this.transporter.sendMail({
