@@ -4,6 +4,7 @@ import { NotFound } from '@application/usecases/errors/user-not-found';
 import { Request, Response, NextFunction } from 'express';
 import { JwtService } from '@nestjs/jwt';
 import { UserRepository } from '@application/repositories/user-repository';
+import { setCookies } from '@helpers/set-cookies';
 export interface JwtPayload {
   sub: string;
   email: string;
@@ -30,7 +31,6 @@ export class JwtMiddleware implements NestMiddleware {
       });
 
       const user = await this.userRepository.findById(payload.sub);
-
       req.user = user;
 
       return next();
@@ -65,10 +65,16 @@ export class JwtMiddleware implements NestMiddleware {
             expiresIn: '7d',
             secret: process.env.JWT_REFRESH_TOKEN_SECRET,
           });
-
-          res.cookie('access_token', newAccessToken, { httpOnly: true });
-          res.cookie('refresh_token', newRefreshToken, { httpOnly: true });
-
+          setCookies({
+            res,
+            cookieKey: 'access_token',
+            cookieValue: newAccessToken,
+          });
+          setCookies({
+            res,
+            cookieKey: 'refresh_token',
+            cookieValue: newRefreshToken,
+          });
           req.user = user;
           return next();
         } catch (error) {

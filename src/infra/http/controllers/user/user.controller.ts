@@ -62,7 +62,7 @@ export class UserController {
   @Get()
   async getOwnUser(@Request() req: RequestExpress) {
     const user = req.user as User;
-
+    console.log(user);
     return { user: UserViewModel.toHTTP(user) };
   }
 
@@ -149,7 +149,7 @@ export class UserController {
     @Param('code') code: string,
   ) {
     const isCodeValid = checkCode({
-      codeToCheck: `redefine-phone-number_code`,
+      codeToCheck: `redefine_phone_number_code`,
       receivedCode: code,
       req,
       res,

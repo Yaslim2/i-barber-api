@@ -8,6 +8,7 @@ export class UserViewModel {
       email: user.email.value,
       imageUrl: user.imageUrl?.value,
       socialId: user.socialId,
+      phoneNumber: user.phoneNumber.value,
     };
   }
 }

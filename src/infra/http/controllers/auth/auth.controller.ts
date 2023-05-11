@@ -25,6 +25,7 @@ import { EmailVerificationBody } from '@infra/http/dtos/email-verification-body'
 import * as momentTimezone from 'moment-timezone';
 import { checkCode } from '@helpers/check-verification-code';
 import { expirationCodeTimestamp } from '@helpers/expiration-code-timestamp';
+import { setCookies } from '@helpers/set-cookies';
 
 @Controller('auth')
 export class AuthController {
@@ -43,8 +44,8 @@ export class AuthController {
       email,
       password,
     });
-    res.cookie('access_token', accessToken, { httpOnly: true });
-    res.cookie('refresh_token', refreshToken, { httpOnly: true });
+    setCookies({ res, cookieKey: 'access_token', cookieValue: accessToken });
+    setCookies({ res, cookieKey: 'refresh_token', cookieValue: refreshToken });
     return res.status(201).send({
       user: UserViewModel.toHTTP(user),
     });
@@ -71,10 +72,16 @@ export class AuthController {
     console.warn('The sms should have been sent to that number', phoneNumber, {
       verificationCode,
     });
-    res.clearCookie('verification_sms_code');
-    res.clearCookie('verification_sms_code_expiration');
-    res.cookie('verification_sms_code', verificationCode, { httpOnly: true });
-    res.cookie('verification_sms_code_expiration', expirationCodeTimestamp);
+    setCookies({
+      res,
+      cookieKey: 'verification_sms_code',
+      cookieValue: verificationCode,
+    });
+    setCookies({
+      res,
+      cookieKey: 'verification_sms_code_expiration',
+      cookieValue: expirationCodeTimestamp,
+    });
     return res.status(204).send();
   }
 
@@ -90,10 +97,16 @@ export class AuthController {
       subject: 'Confirmação de E-mail | iBarber',
       template: 'verification-email',
     });
-    res.clearCookie('verification_email_code');
-    res.clearCookie('verification_email_code_expiration');
-    res.cookie('verification_email_code', verificationCode, { httpOnly: true });
-    res.cookie('verification_email_code_expiration', expirationCodeTimestamp);
+    setCookies({
+      res,
+      cookieKey: 'verification_email_code',
+      cookieValue: verificationCode,
+    });
+    setCookies({
+      res,
+      cookieKey: 'verification_email_code_expiration',
+      cookieValue: expirationCodeTimestamp,
+    });
     return res.status(204).send();
   }
 
@@ -111,15 +124,16 @@ export class AuthController {
       subject: 'Redefinição de Senha | iBarber',
       template: 'forgot-password',
     });
-    res.clearCookie('forgot_password_email_code');
-    res.clearCookie('forgot_password_email_code_expiration');
-    res.cookie('forgot_password_email_code', verificationCode, {
-      httpOnly: true,
+    setCookies({
+      res,
+      cookieKey: 'forgot_password_email_code',
+      cookieValue: verificationCode,
     });
-    res.cookie(
-      'forgot_password_email_code_expiration',
-      expirationCodeTimestamp,
-    );
+    setCookies({
+      res,
+      cookieKey: 'forgot_password_email_code_expiration',
+      cookieValue: expirationCodeTimestamp,
+    });
     return res.status(204).send();
   }
 
@@ -137,15 +151,42 @@ export class AuthController {
       subject: 'Redefinição de Número de Telefone | iBarber',
       template: 'redefine-phone-number',
     });
-    res.clearCookie('redefine-phone-number_code');
-    res.clearCookie('redefine-phone-number_code_expiration');
-    res.cookie('redefine-phone-number_code', verificationCode, {
-      httpOnly: true,
+    setCookies({
+      res,
+      cookieKey: 'redefine_phone_number_code',
+      cookieValue: verificationCode,
     });
-    res.cookie(
-      'redefine-phone-number_code_expiration',
-      expirationCodeTimestamp,
-    );
+    setCookies({
+      res,
+      cookieKey: 'redefine_phone_number_code_expiration',
+      cookieValue: expirationCodeTimestamp,
+    });
+    return res.status(204).send();
+  }
+
+  @Post('send-redefine-email-sms')
+  async sendRedefineEmailSms(
+    @Response() res: ResponseExpress,
+    @Body() { phoneNumber }: SmsVerificationBody,
+  ) {
+    const verificationCode = randomVerificationCode();
+    // await this.sendSms.execute(
+    //   process.env.TWILIO_PHONE_NUMBER_AUTHENTICATED,
+    //   smsRedefineEmailText(verificationCode),
+    // );
+    console.warn('The sms should have been sent to that number', phoneNumber, {
+      verificationCode,
+    });
+    setCookies({
+      res,
+      cookieKey: 'redefine_email_code',
+      cookieValue: verificationCode,
+    });
+    setCookies({
+      res,
+      cookieKey: 'redefine_email_code_expiration',
+      cookieValue: expirationCodeTimestamp,
+    });
     return res.status(204).send();
   }
 
@@ -162,12 +203,16 @@ export class AuthController {
     console.warn('The sms should have been sent to that number', phoneNumber, {
       verificationCode,
     });
-    res.clearCookie('forgot_password_sms_code');
-    res.clearCookie('forgot_password_sms_code_expiration');
-    res.cookie('forgot_password_sms_code', verificationCode, {
-      httpOnly: true,
+    setCookies({
+      res,
+      cookieKey: 'forgot_password_sms_code',
+      cookieValue: verificationCode,
     });
-    res.cookie('forgot_password_sms_code_expiration', expirationCodeTimestamp);
+    setCookies({
+      res,
+      cookieKey: 'forgot_password_sms_code_expiration',
+      cookieValue: expirationCodeTimestamp,
+    });
     return res.status(204).send();
   }
 

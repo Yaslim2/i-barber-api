@@ -17,6 +17,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - app-network
   app:
     build: 
       context: .
@@ -29,5 +31,9 @@ services:
       DATABASE_URL: postgres://ibarberuser:ibarber2323@db:5432/ibarberdb
     volumes:
       - .:/app
+    networks:
+      - app-network
 volumes:
   dbdata:
+networks:
+  app-network:
