@@ -7,6 +7,8 @@ import {
   Param,
   Patch,
   Post,
+  Request,
+  Response,
 } from '@nestjs/common';
 import { CreateUser } from '@application/usecases/user/create-user';
 import { GetAllUsers } from '@application/usecases/user/get-all-users';
@@ -14,7 +16,16 @@ import { GetUser } from '@application/usecases/user/get-user';
 import { UpdateUser } from '@application/usecases/user/update-user';
 import { UserViewModel } from '@infra/http/view-models/user-view-model';
 import { UpdateUserBody } from '@infra/http/dtos/update-user-body';
-import { ValidationIdParamsPipe } from '@infra/pipes/validation-params-id.pipe';
+import { UpdatePasswordBody } from '@infra/http/dtos/update-password-body';
+import {
+  Request as RequestExpress,
+  Response as ResponseExpress,
+} from 'express';
+import { User } from '@application/entities/user/user';
+import { checkCode } from '@helpers/check-verification-code';
+import { Unauthorized } from '@application/usecases/errors/unauthorized';
+import { UpdateEmailBody } from '@infra/http/dtos/update-email-body';
+import { UpdatePhoneNumberBody } from '@infra/http/dtos/update-phone-number-body';
 
 @Controller('user')
 export class UserController {
@@ -48,25 +59,113 @@ export class UserController {
     return { users: users.map((item) => UserViewModel.toHTTP(item)) };
   }
 
-  @Get('/:id')
-  async getUserById(@Param('id', ValidationIdParamsPipe) id: string) {
-    const { user } = await this.getUser.execute({ userId: id });
+  @Get()
+  async getOwnUser(@Request() req: RequestExpress) {
+    const user = req.user as User;
 
     return { user: UserViewModel.toHTTP(user) };
   }
 
   @HttpCode(201)
-  @Patch('/:id')
+  @Patch('/update')
   async update(
-    @Param('id', ValidationIdParamsPipe) id: string,
     @Body() { fullname, imageUrl }: UpdateUserBody,
+    @Request() req: RequestExpress,
   ) {
+    const userLogged = req.user as User;
     const { user } = await this.updateUser.execute({
       fullname,
       imageUrl,
-      userId: id,
+      userId: userLogged.id,
     });
 
     return { user: UserViewModel.toHTTP(user) };
+  }
+
+  @HttpCode(201)
+  @Patch('/update-password/:code')
+  async updatePassword(
+    @Body() { password, typeValidation }: UpdatePasswordBody,
+    @Request() req: RequestExpress,
+    @Response() res: ResponseExpress,
+    @Param('code') code: string,
+  ) {
+    const isCodeValid = checkCode({
+      codeToCheck: `forgot_password_${typeValidation}_code`,
+      receivedCode: code,
+      req,
+      res,
+    });
+    if (isCodeValid) {
+      const userLogged = req.user as User;
+      const { user } = await this.updateUser.execute({
+        fullname: userLogged.fullname.value,
+        imageUrl: userLogged.imageUrl.value,
+        password,
+        userId: userLogged.id,
+      });
+
+      return res.json({ user: UserViewModel.toHTTP(user) });
+    } else {
+      throw new Unauthorized();
+    }
+  }
+
+  @HttpCode(201)
+  @Patch('/update-email/:code')
+  async updateEmail(
+    @Body() { email }: UpdateEmailBody,
+    @Request() req: RequestExpress,
+    @Response() res: ResponseExpress,
+    @Param('code') code: string,
+  ) {
+    const isCodeValid = checkCode({
+      codeToCheck: `verification_sms_code`,
+      receivedCode: code,
+      req,
+      res,
+    });
+    if (isCodeValid) {
+      const userLogged = req.user as User;
+      const { user } = await this.updateUser.execute({
+        fullname: userLogged.fullname.value,
+        imageUrl: userLogged.imageUrl.value,
+        email,
+        userId: userLogged.id,
+      });
+
+      return res.json({ user: UserViewModel.toHTTP(user) });
+    } else {
+      throw new Unauthorized();
+    }
+  }
+
+  @HttpCode(201)
+  @Patch('/update-phone-number/:code')
+  async updatePhoneNumber(
+    @Body() { phoneNumber }: UpdatePhoneNumberBody,
+    @Request() req: RequestExpress,
+    @Response() res: ResponseExpress,
+    @Param('code') code: string,
+  ) {
+    const isCodeValid = checkCode({
+      codeToCheck: `redefine-phone-number_code`,
+      receivedCode: code,
+      req,
+      res,
+    });
+    if (isCodeValid) {
+      const userLogged = req.user as User;
+      const { user } = await this.updateUser.execute({
+        fullname: userLogged.fullname.value,
+        imageUrl: userLogged.imageUrl.value,
+        phoneNumber,
+        userId: userLogged.id,
+      });
+
+      return res.json({ user: UserViewModel.toHTTP(user) });
+    } else {
+      throw new Unauthorized();
+    }
   }
 }

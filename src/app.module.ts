@@ -17,15 +17,19 @@ export class AppModule {
         { path: '/auth/send-sms-verification', method: RequestMethod.POST },
         { path: '/auth/send-email-verification', method: RequestMethod.POST },
         {
+          path: '/auth/send-forgot-password-email',
+          method: RequestMethod.POST,
+        },
+        {
+          path: '/auth/send-redefine-phone-number-email',
+          method: RequestMethod.POST,
+        },
+        {
           path: '/auth/check-verification-code/:code',
           method: RequestMethod.GET,
         },
         {
           path: '/auth/check-verification-email-code/:code',
-          method: RequestMethod.GET,
-        },
-        {
-          path: '/email',
           method: RequestMethod.GET,
         },
       )

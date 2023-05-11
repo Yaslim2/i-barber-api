@@ -23,6 +23,8 @@ import { Unauthorized } from '@application/usecases/errors/unauthorized';
 import { SendMail } from '@application/usecases/email/send-email';
 import { EmailVerificationBody } from '@infra/http/dtos/email-verification-body';
 import * as momentTimezone from 'moment-timezone';
+import { checkCode } from '@helpers/check-verification-code';
+import { expirationCodeTimestamp } from '@helpers/expiration-code-timestamp';
 
 @Controller('auth')
 export class AuthController {
@@ -69,13 +71,10 @@ export class AuthController {
     console.warn('The sms should have been sent to that number', phoneNumber, {
       verificationCode,
     });
-    res.clearCookie('verification_code');
-    res.clearCookie('verification_code_expiration');
-    res.cookie('verification_code', verificationCode, { httpOnly: true });
-    res.cookie(
-      'verification_code_expiration',
-      new Date(new Date().getTime() + 5 * 60 * 1000).getTime(),
-    );
+    res.clearCookie('verification_sms_code');
+    res.clearCookie('verification_sms_code_expiration');
+    res.cookie('verification_sms_code', verificationCode, { httpOnly: true });
+    res.cookie('verification_sms_code_expiration', expirationCodeTimestamp);
     return res.status(204).send();
   }
 
@@ -88,16 +87,13 @@ export class AuthController {
     await this.sendEmail.execute({
       to: email,
       context: { verificationCode },
-      subject: 'iBarber - Confirmação de E-mail',
+      subject: 'Confirmação de E-mail | iBarber',
       template: 'verification-email',
     });
     res.clearCookie('verification_email_code');
     res.clearCookie('verification_email_code_expiration');
     res.cookie('verification_email_code', verificationCode, { httpOnly: true });
-    res.cookie(
-      'verification_email_code_expiration',
-      new Date(new Date().getTime() + 5 * 60 * 1000).getTime(),
-    );
+    res.cookie('verification_email_code_expiration', expirationCodeTimestamp);
     return res.status(204).send();
   }
 
@@ -115,31 +111,79 @@ export class AuthController {
       subject: 'Redefinição de Senha | iBarber',
       template: 'forgot-password',
     });
-    res.clearCookie('forgot_password_code');
-    res.clearCookie('forgot_password_code_expiration');
-    res.cookie('forgot_password_code', verificationCode, { httpOnly: true });
+    res.clearCookie('forgot_password_email_code');
+    res.clearCookie('forgot_password_email_code_expiration');
+    res.cookie('forgot_password_email_code', verificationCode, {
+      httpOnly: true,
+    });
     res.cookie(
-      'forgot_password_code_expiration',
-      new Date(new Date().getTime() + 5 * 60 * 1000).getTime(),
+      'forgot_password_email_code_expiration',
+      expirationCodeTimestamp,
     );
     return res.status(204).send();
   }
 
-  @Get('check-verification-code/:code')
+  @Post('send-redefine-phone-number-email')
+  async sendRedefinePhoneNumberEmail(
+    @Response() res: ResponseExpress,
+    @Body() { email }: EmailVerificationBody,
+  ) {
+    const verificationCode = randomVerificationCode();
+    const date = momentTimezone().tz('America/Sao_Paulo').format('DD/MM/YYYY');
+    const time = momentTimezone().tz('America/Sao_Paulo').format('HH:mm:ss');
+    await this.sendEmail.execute({
+      to: email,
+      context: { verificationCode, date, time },
+      subject: 'Redefinição de Número de Telefone | iBarber',
+      template: 'redefine-phone-number',
+    });
+    res.clearCookie('redefine-phone-number_code');
+    res.clearCookie('redefine-phone-number_code_expiration');
+    res.cookie('redefine-phone-number_code', verificationCode, {
+      httpOnly: true,
+    });
+    res.cookie(
+      'redefine-phone-number_code_expiration',
+      expirationCodeTimestamp,
+    );
+    return res.status(204).send();
+  }
+
+  @Post('send-forgot-password-sms')
+  async sendForgotPasswordSms(
+    @Response() res: ResponseExpress,
+    @Body() { phoneNumber }: SmsVerificationBody,
+  ) {
+    const verificationCode = randomVerificationCode();
+    // await this.sendSms.execute(
+    //   process.env.TWILIO_PHONE_NUMBER_AUTHENTICATED,
+    //   smsForgotPasswordText(verificationCode),
+    // );
+    console.warn('The sms should have been sent to that number', phoneNumber, {
+      verificationCode,
+    });
+    res.clearCookie('forgot_password_sms_code');
+    res.clearCookie('forgot_password_sms_code_expiration');
+    res.cookie('forgot_password_sms_code', verificationCode, {
+      httpOnly: true,
+    });
+    res.cookie('forgot_password_sms_code_expiration', expirationCodeTimestamp);
+    return res.status(204).send();
+  }
+
+  @Get('check-verification-sms-code/:code')
   async checkVerificationCode(
     @Response() res: ResponseExpress,
     @Request() req: RequestExpress,
     @Param('code') code: string,
   ) {
-    const verificationCode = req.cookies['verification_code'];
-    const verificationCodeExpiration =
-      req.cookies['verification_code_expiration'];
-    if (
-      verificationCode === code &&
-      Number(verificationCodeExpiration) > new Date().getTime()
-    ) {
-      res.clearCookie('verification_code');
-      res.clearCookie('verification_code_expiration');
+    const isCodeValid = await checkCode({
+      req,
+      receivedCode: code,
+      codeToCheck: 'verification_sms_code',
+      res,
+    });
+    if (isCodeValid) {
       return res
         .status(200)
         .send({ message: 'Verification complete successfully' });
@@ -154,38 +198,13 @@ export class AuthController {
     @Request() req: RequestExpress,
     @Param('code') code: string,
   ) {
-    const verificationCode = req.cookies['verification_email_code'];
-    const verificationCodeExpiration =
-      req.cookies['verification_email_code_expiration'];
-    if (
-      verificationCode === code &&
-      Number(verificationCodeExpiration) > new Date().getTime()
-    ) {
-      res.clearCookie('verification_email_code');
-      res.clearCookie('verification_email_code_expiration');
-      return res
-        .status(200)
-        .send({ message: 'Verification complete successfully' });
-    } else {
-      throw new Unauthorized();
-    }
-  }
-
-  @Get('check-forgot-password-code/:code')
-  async checkForgotPasswordCode(
-    @Response() res: ResponseExpress,
-    @Request() req: RequestExpress,
-    @Param('code') code: string,
-  ) {
-    const verificationCode = req.cookies['forgot_password_code'];
-    const verificationCodeExpiration =
-      req.cookies['forgot_password_code_expiration'];
-    if (
-      verificationCode === code &&
-      Number(verificationCodeExpiration) > new Date().getTime()
-    ) {
-      res.clearCookie('forgot_password_code');
-      res.clearCookie('forgot_password_code_expiration');
+    const isCodeValid = await checkCode({
+      req,
+      receivedCode: code,
+      codeToCheck: 'verification_email_code',
+      res,
+    });
+    if (isCodeValid) {
       return res
         .status(200)
         .send({ message: 'Verification complete successfully' });
