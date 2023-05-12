@@ -21,6 +21,10 @@ export class AppModule {
           method: RequestMethod.POST,
         },
         {
+          path: '/auth/send-forgot-password-sms',
+          method: RequestMethod.POST,
+        },
+        {
           path: '/auth/send-redefine-phone-number-email',
           method: RequestMethod.POST,
         },

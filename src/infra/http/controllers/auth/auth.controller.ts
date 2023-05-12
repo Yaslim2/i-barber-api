@@ -136,6 +136,31 @@ export class AuthController {
     });
     return res.status(204).send();
   }
+  @Post('send-forgot-password-sms')
+  async sendForgotPasswordSms(
+    @Response() res: ResponseExpress,
+    @Body() { phoneNumber }: SmsVerificationBody,
+  ) {
+    const verificationCode = randomVerificationCode();
+    // await this.sendSms.execute(
+    //   process.env.TWILIO_PHONE_NUMBER_AUTHENTICATED,
+    //   smsForgotPasswordText(verificationCode),
+    // );
+    console.warn('The sms should have been sent to that number', phoneNumber, {
+      verificationCode,
+    });
+    setCookies({
+      res,
+      cookieKey: 'forgot_password_sms_code',
+      cookieValue: verificationCode,
+    });
+    setCookies({
+      res,
+      cookieKey: 'forgot_password_sms_code_expiration',
+      cookieValue: expirationCodeTimestamp,
+    });
+    return res.status(204).send();
+  }
 
   @Post('send-redefine-phone-number-email')
   async sendRedefinePhoneNumberEmail(
@@ -185,32 +210,6 @@ export class AuthController {
     setCookies({
       res,
       cookieKey: 'redefine_email_code_expiration',
-      cookieValue: expirationCodeTimestamp,
-    });
-    return res.status(204).send();
-  }
-
-  @Post('send-forgot-password-sms')
-  async sendForgotPasswordSms(
-    @Response() res: ResponseExpress,
-    @Body() { phoneNumber }: SmsVerificationBody,
-  ) {
-    const verificationCode = randomVerificationCode();
-    // await this.sendSms.execute(
-    //   process.env.TWILIO_PHONE_NUMBER_AUTHENTICATED,
-    //   smsForgotPasswordText(verificationCode),
-    // );
-    console.warn('The sms should have been sent to that number', phoneNumber, {
-      verificationCode,
-    });
-    setCookies({
-      res,
-      cookieKey: 'forgot_password_sms_code',
-      cookieValue: verificationCode,
-    });
-    setCookies({
-      res,
-      cookieKey: 'forgot_password_sms_code_expiration',
       cookieValue: expirationCodeTimestamp,
     });
     return res.status(204).send();
