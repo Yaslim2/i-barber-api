@@ -20,10 +20,7 @@ export class JwtMiddleware implements NestMiddleware {
   async use(req: Request, res: Response, next: NextFunction) {
     const accessToken = req.cookies['access_token'];
 
-    if (!accessToken) {
-      res.clearCookie('access_token');
-      throw new Unauthorized();
-    }
+    if (!accessToken) throw new Unauthorized();
 
     try {
       const payload: JwtPayload = this.jwtService.verify(accessToken, {
@@ -31,19 +28,17 @@ export class JwtMiddleware implements NestMiddleware {
       });
 
       const user = await this.userRepository.findById(payload.sub);
+      if (!user) throw new Unauthorized();
+
       req.user = user;
 
       return next();
     } catch (error) {
       if (error.name === 'TokenExpiredError') {
-        const refreshToken = req.cookies['refresh_token'];
-
-        if (!refreshToken) {
-          res.clearCookie('refresh_token');
-          throw new Unauthorized();
-        }
-
         try {
+          const refreshToken = req.cookies['refresh_token'];
+          if (!refreshToken) throw new Unauthorized();
+
           const payload: JwtPayload = await this.jwtService.verify(
             refreshToken,
             {
@@ -53,9 +48,7 @@ export class JwtMiddleware implements NestMiddleware {
 
           const user = await this.userRepository.findById(payload.sub);
 
-          if (!user) {
-            throw new NotFound('User');
-          }
+          if (!user) throw new NotFound('User');
 
           const newAccessToken = this.jwtService.sign(payload, {
             secret: process.env.JWT_ACCESS_TOKEN_SECRET,
@@ -82,6 +75,10 @@ export class JwtMiddleware implements NestMiddleware {
           res.clearCookie('refresh_token');
           throw new Unauthorized();
         }
+      } else {
+        res.clearCookie('access_token');
+        res.clearCookie('refresh_token');
+        throw new Unauthorized();
       }
     }
   }

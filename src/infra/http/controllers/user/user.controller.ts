@@ -62,7 +62,6 @@ export class UserController {
   @Get()
   async getOwnUser(@Request() req: RequestExpress) {
     const user = req.user as User;
-    console.log(user);
     return { user: UserViewModel.toHTTP(user) };
   }
 
